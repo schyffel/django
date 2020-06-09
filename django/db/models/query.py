@@ -809,6 +809,16 @@ class QuerySet:
             return self.query.has_results(using=self.db)
         return bool(self._result_cache)
 
+    def contains(self, obj):
+        """
+        Check if object exists in queryset.
+
+        If the QuerySet is already fully cached, check if object is in cache.
+        """
+        if self._result_cache is None:
+            return isinstance(obj, self.model) and self.filter(pk=obj.pk).exists()
+        return obj in self._result_cache
+
     def _prefetch_related_objects(self):
         # This method can only be called once the result cache has been filled.
         prefetch_related_objects(self._result_cache, *self._prefetch_related_lookups)

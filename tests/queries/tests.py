@@ -2032,6 +2032,14 @@ class ExistsSql(TestCase):
         self.assertNotIn(id, qstr)
         self.assertNotIn(name, qstr)
 
+    def test_ticket_24141(self):
+        existing = Article.objects.create(name='one', created=datetime.datetime.now())
+        not_saved = Article(name='two', created=datetime.datetime.now())
+        wrong_model = Tag.objects.create(name='Lovelace')
+        self.assertTrue(Article.objects.all().contains(existing))
+        self.assertFalse(Article.objects.all().contains(wrong_model))
+        self.assertFalse(Article.objects.all().contains(not_saved))
+
     def test_ticket_18414(self):
         Article.objects.create(name='one', created=datetime.datetime.now())
         Article.objects.create(name='one', created=datetime.datetime.now())
