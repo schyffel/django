@@ -815,8 +815,15 @@ class QuerySet:
 
         If the QuerySet is already fully cached, check if object is in cache.
         """
+        try:
+            if obj._meta.concrete_model != self.model._meta.concrete_model:
+                return False
+        except AttributeError:
+            raise NotImplementedError(
+                'QuerySet.contains only supports Model objects. You passed in a {}.'.format(type(obj))
+            )
         if self._result_cache is None:
-            return isinstance(obj, self.model) and self.filter(pk=obj.pk).exists()
+            return self.filter(pk=obj.pk).exists()
         return obj in self._result_cache
 
     def _prefetch_related_objects(self):
