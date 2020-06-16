@@ -251,12 +251,18 @@ Use ``QuerySet.exists()``
 ...if you only want to find out if at least one result exists, rather than ``if
 queryset``.
 
+Use ``QuerySet.contains(obj)``
+------------------------------
+
+...if you only want to find out if object is in queryset, rather than ``if
+obj in queryset``.
+
 But:
 
 .. _overuse_of_count_and_exists:
 
-Don't overuse ``count()`` and ``exists()``
-------------------------------------------
+Don't overuse ``count()``, ``exists()`` and ``contains()``
+----------------------------------------------------------
 
 If you are going to need other data from the QuerySet, evaluate it immediately.
 
