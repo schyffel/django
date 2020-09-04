@@ -727,7 +727,12 @@ class SQLCompiler:
         # If we get to this point and the field is a relation to another model,
         # append the default ordering for that model unless it is the pk
         # shortcut or the attribute name of the field that is specified.
-        if field.is_relation and opts.ordering and getattr(field, 'attname', None) != name and name != 'pk':
+        if (
+            field.is_relation and
+            opts.ordering and
+            getattr(field, 'attname', None) != pieces[-1] and
+            name != 'pk'
+        ):
             # Firstly, avoid infinite loops.
             already_seen = already_seen or set()
             join_tuple = tuple(getattr(self.query.alias_map[j], 'join_cols', None) for j in joins)
@@ -977,7 +982,8 @@ class SQLCompiler:
         the query.
         """
         def _get_parent_klass_info(klass_info):
-            for parent_model, parent_link in klass_info['model']._meta.parents.items():
+            concrete_model = klass_info['model']._meta.concrete_model
+            for parent_model, parent_link in concrete_model._meta.parents.items():
                 parent_list = parent_model._meta.get_parent_list()
                 yield {
                     'model': parent_model,
@@ -1002,8 +1008,9 @@ class SQLCompiler:
             select_fields is filled recursively, so it also contains fields
             from the parent models.
             """
+            concrete_model = klass_info['model']._meta.concrete_model
             for select_index in klass_info['select_fields']:
-                if self.select[select_index][0].target.model == klass_info['model']:
+                if self.select[select_index][0].target.model == concrete_model:
                     return self.select[select_index][0]
 
         def _get_field_choices():
@@ -1120,9 +1127,6 @@ class SQLCompiler:
         Backends (e.g. NoSQL) can override this in order to use optimized
         versions of "query has any results."
         """
-        # This is always executed on a query clone, so we can modify self.query
-        self.query.add_extra({'a': 1}, None, None, None, None, None)
-        self.query.set_extra_mask(['a'])
         return bool(self.execute_sql(SINGLE))
 
     def execute_sql(self, result_type=MULTI, chunked_fetch=False, chunk_size=GET_ITERATOR_CHUNK_SIZE):
@@ -1439,6 +1443,11 @@ class SQLDeleteCompiler(SQLCompiler):
         ]
         outerq = Query(self.query.model)
         outerq.where = self.query.where_class()
+        if not self.connection.features.update_can_self_select:
+            # Force the materialization of the inner query to allow reference
+            # to the target table on MySQL.
+            sql, params = innerq.get_compiler(connection=self.connection).as_sql()
+            innerq = RawSQL('SELECT * FROM (%s) subquery' % sql, params)
         outerq.add_q(Q(pk__in=innerq))
         return self._as_sql(outerq)
 

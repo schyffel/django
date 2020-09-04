@@ -99,12 +99,6 @@ class BaseDatabaseOperations:
         """
         raise NotImplementedError('subclasses of BaseDatabaseOperations may require a date_extract_sql() method')
 
-    def date_interval_sql(self, timedelta):
-        """
-        Implement the date interval functionality for expressions.
-        """
-        raise NotImplementedError('subclasses of BaseDatabaseOperations may require a date_interval_sql() method')
-
     def date_trunc_sql(self, lookup_type, field_name):
         """
         Given a lookup_type of 'year', 'month', or 'day', return the SQL that
@@ -158,13 +152,6 @@ class BaseDatabaseOperations:
         that extracts a value from the given time field field_name.
         """
         return self.date_extract_sql(lookup_type, field_name)
-
-    def json_cast_text_sql(self, field_name):
-        """Return the SQL to cast a JSON value to text value."""
-        raise NotImplementedError(
-            'subclasses of BaseDatabaseOperations may require a '
-            'json_cast_text_sql() method'
-        )
 
     def deferrable_sql(self):
         """

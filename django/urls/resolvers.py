@@ -208,8 +208,6 @@ def _route_to_regex(route, is_endpoint=False):
     For example, 'foo/<int:pk>' returns '^foo\\/(?P<pk>[0-9]+)'
     and {'pk': <django.urls.converters.IntConverter>}.
     """
-    if not set(route).isdisjoint(string.whitespace):
-        raise ImproperlyConfigured("URL route '%s' cannot contain whitespace." % route)
     original_route = route
     parts = ['^']
     converters = {}
@@ -218,6 +216,11 @@ def _route_to_regex(route, is_endpoint=False):
         if not match:
             parts.append(re.escape(route))
             break
+        elif not set(match.group()).isdisjoint(string.whitespace):
+            raise ImproperlyConfigured(
+                "URL route '%s' cannot contain whitespace in angle brackets "
+                "<…>." % original_route
+            )
         parts.append(re.escape(route[:match.start()]))
         route = route[match.end():]
         parameter = match['parameter']
@@ -416,7 +419,7 @@ class URLResolver:
         # which takes (request).
         for status_code, num_parameters in [(400, 2), (403, 2), (404, 2), (500, 1)]:
             try:
-                handler, param_dict = self.resolve_error_handler(status_code)
+                handler = self.resolve_error_handler(status_code)
             except (ImportError, ViewDoesNotExist) as e:
                 path = getattr(self.urlconf_module, 'handler%s' % status_code)
                 msg = (
@@ -605,7 +608,7 @@ class URLResolver:
             # django.conf.urls imports this file.
             from django.conf import urls
             callback = getattr(urls, 'handler%s' % view_type)
-        return get_callable(callback), {}
+        return get_callable(callback)
 
     def reverse(self, lookup_view, *args, **kwargs):
         return self._reverse_with_prefix(lookup_view, '', *args, **kwargs)
