@@ -261,7 +261,7 @@ But:
 
 .. _overuse_of_count_and_exists:
 
-Don't overuse ``count()``, ``exists()`` and ``contains()``
+Don't overuse ``contains()``, ``count()`` and ``exists()``
 ----------------------------------------------------------
 
 If you are going to need other data from the QuerySet, evaluate it immediately.

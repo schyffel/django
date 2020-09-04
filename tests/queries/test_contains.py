@@ -1,5 +1,5 @@
 from django.test import TestCase
-from .models import ObjectA, ObjectB, ProxyObjectA, ChildObjectA
+from .models import ChildObjectA, ObjectA, ObjectB, ProxyObjectA
 
 
 class ContainsTests(TestCase):
