@@ -192,6 +192,10 @@ Models
   attributes allow creating covering indexes and covering unique constraints on
   PostgreSQL 11+.
 
+* New method :meth:`QuerySet.contains(obj) <.QuerySet.contains>` checks whether
+  a QuerySet contains an object, returning ``True`` or ``False``. It tries to
+  perform the query in the simplest and fastest way possible.
+
 Requests and Responses
 ~~~~~~~~~~~~~~~~~~~~~~
 

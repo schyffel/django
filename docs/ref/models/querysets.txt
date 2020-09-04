@@ -2437,12 +2437,15 @@ results and then checks if any were returned.
 
 .. method:: contains(obj)
 
+.. versionadded:: 3.2
+
 Returns ``True`` if the :class:`.QuerySet` contains obj, and ``False``
 if not. This tries to perform the query in the simplest and fastest way
 possible.
 
 :meth:`~.QuerySet.contains` is useful for checking for existence of any objects
-in a :class:`.QuerySet`, particularly in the context of a large :class:`.QuerySet`.
+in a :class:`.QuerySet`, particularly in the context of a large
+:class:`.QuerySet`.
 
 To check whether a queryset contains a specific item::
 
