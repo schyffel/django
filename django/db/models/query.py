@@ -808,7 +808,7 @@ class QuerySet:
             if obj._meta.concrete_model != self.model._meta.concrete_model:
                 return False
         except AttributeError:
-            raise NotImplementedError(
+            raise ValueError(
                 'QuerySet.contains only supports Model objects. You passed in a {}.'.format(type(obj))
             )
         if self._result_cache is None:
@@ -825,6 +825,7 @@ class QuerySet:
 
     ##################################################
     # PUBLIC METHODS THAT RETURN A QUERYSET SUBCLASS #
+    ##################################################
     ##################################################
 
     def raw(self, raw_query, params=None, translations=None, using=None):
