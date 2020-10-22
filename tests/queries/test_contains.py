@@ -14,6 +14,19 @@ class ContainsTests(TestCase):
     def test_non_model(self):
         self.assertRaises(ValueError, ObjectA.objects.contains, object())
 
+    def test_values_querysets(self):
+        """ Make sure .values() and .values_list() QuerySets don't try to use ._result_cache """
+        values_qs = ObjectA.objects.values('pk')
+        list(values_qs)
+        self.assertIs(values_qs.contains(self.existing), True)
+        self.assertIs(values_qs.contains(self.not_saved), False)
+
+        values_qs = ObjectA.objects.exclude(pk=self.existing.pk).values_list('pk')
+        list(values_qs)
+        self.assertIs(values_qs.contains(self.existing), False)
+        # These should all be queries to the database
+        self.assertNumQueries(3)
+
     def test_db_queries(self):
         # DB query tests
         self.assertIs(ObjectA.objects.contains(self.existing), True)
