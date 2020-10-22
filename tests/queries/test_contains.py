@@ -12,7 +12,7 @@ class ContainsTests(TestCase):
         cls.proxy_model_existing = ProxyObjectA.objects.create(name='four')
 
     def test_non_model(self):
-        self.assertRaises(NotImplementedError, ObjectA.objects.contains, object())
+        self.assertRaises(ValueError, ObjectA.objects.contains, object())
 
     def test_db_queries(self):
         # DB query tests
