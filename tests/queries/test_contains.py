@@ -29,7 +29,6 @@ class ContainsTests(TestCase):
             list(values_qs)
             self.assertIs(values_qs.contains(self.existing), False)
 
-
     def test_group_by(self):
         from django.db.models import Count
         a = ObjectA.objects.create(name='a')
