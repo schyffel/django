@@ -18,15 +18,17 @@ class ContainsTests(TestCase):
         """ Make sure .values() and .values_list() QuerySets don't try to use ._result_cache """
         values_qs = ObjectA.objects.values('pk')
         with self.assertNumQueries(3):
+            # These should all be queries to the database
             list(values_qs)
             self.assertIs(values_qs.contains(self.existing), True)
             self.assertIs(values_qs.contains(self.not_saved), False)
 
+        values_qs = ObjectA.objects.exclude(pk=self.existing.pk).values_list('pk')
         with self.assertNumQueries(2):
-            values_qs = ObjectA.objects.exclude(pk=self.existing.pk).values_list('pk')
+            # These should all be queries to the database
             list(values_qs)
             self.assertIs(values_qs.contains(self.existing), False)
-        # These should all be queries to the database
+
 
     def test_group_by(self):
         from django.db.models import Count
