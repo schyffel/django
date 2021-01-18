@@ -804,6 +804,10 @@ class QuerySet:
 
         If the QuerySet is already fully cached, check if object is in cache.
         """
+        if not issubclass(self._iterable_class, ModelIterable):
+            raise ValueError(
+                "QuerySet.contains does not work for iterable class '{}'.".format(self._iterable_class.__name__)
+            )
         try:
             if obj._meta.concrete_model != self.model._meta.concrete_model:
                 return False
@@ -811,7 +815,7 @@ class QuerySet:
             raise ValueError(
                 'QuerySet.contains only supports Model objects. You passed in a {}.'.format(type(obj))
             )
-        if self._result_cache is not None and issubclass(self._iterable_class, ModelIterable):
+        if self._result_cache is not None:
             return obj in self._result_cache
         return self.filter(pk=obj.pk).exists()
 

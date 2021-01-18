@@ -2526,6 +2526,9 @@ evaluated, but you know that it will be at some point, using
 ``some_queryset.contains(obj)`` will make an additional database query,
 generally resulting in slower overall performance.
 
+:meth:`~.QuerySet.contains` does not work with :meth:`~.QuerySet.values` or
+:meth:`~.QuerySet.values_list`.
+
 ``update()``
 ~~~~~~~~~~~~
 

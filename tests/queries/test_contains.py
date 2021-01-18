@@ -15,37 +15,11 @@ class ContainsTests(TestCase):
         self.assertRaises(ValueError, ObjectA.objects.contains, object())
 
     def test_values_querysets(self):
-        """ Make sure .values() and .values_list() QuerySets don't try to use ._result_cache """
-        values_qs = ObjectA.objects.values('pk')
-        with self.assertNumQueries(3):
-            # These should all be queries to the database
-            list(values_qs)
-            self.assertIs(values_qs.contains(self.existing), True)
-            self.assertIs(values_qs.contains(self.not_saved), False)
-
-        values_qs = ObjectA.objects.exclude(pk=self.existing.pk).values_list('pk')
-        with self.assertNumQueries(2):
-            # These should all be queries to the database
-            list(values_qs)
-            self.assertIs(values_qs.contains(self.existing), False)
-
-    def test_group_by(self):
-        from django.db.models import Count
-        a = ObjectA.objects.create(name='a')
-        for _ in range(10):
-            ObjectA.objects.create(name='b')
-        qs = ObjectA.objects.exclude(name='a').values('name').annotate(count=Count('pk')).order_by('name')
-        with self.assertNumQueries(3):
-            self.assertIs(qs.contains(a), False)
-            self.assertEqual(len(qs), 3, 'QuerySet should contain grouped object rows b;four;one')
-            self.assertIs(qs.contains(self.existing), True)
-
-    def test_values_list(self):
-        qs = ObjectA.objects.values_list('name')
-        with self.assertNumQueries(3):
-            self.assertEqual(len(qs), 2)  # Evaluates queryset
-            self.assertIs(qs.contains(self.existing), True)
-            self.assertIs(qs.contains(self.not_saved), False)
+        """ Make sure .values() and .values_list() QuerySets raises ValueError """
+        with self.assertRaises(ValueError):
+            ObjectA.objects.values_list('pk').contains(self.existing)
+        with self.assertRaises(ValueError):
+            ObjectA.objects.values('pk').contains(self.existing)
 
     def test_db_queries(self):
         # DB query tests
